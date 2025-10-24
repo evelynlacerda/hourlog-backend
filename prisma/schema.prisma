@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id                Int                 @id @default(autoincrement())
+  nome              String
+  email             String              @unique
+  senha             String
+  projetos          Projeto[]
+  passwordResets    PasswordReset[]
+}
+
+model PasswordReset {
+    id          Int         @id @default(autoincrement())
+    userId      Int
+    tokenHash   String
+    expiresAt   DateTime
+    usedAt      DateTime?
+    createdAt   DateTime    @default(now())
+
+    user        Usuario     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([expiresAt])
+}
+
+model Projeto {
+  usuarioId     Int
+  usuario       Usuario         @relation(fields: [usuarioId], references: [id])
+  id            Int             @id @default(autoincrement())
+  nomeProjeto   String
+  status        StatusProjeto   @default(EM_ANDAMENTO)
+  horasTotais   String?         @default("00:00")
+  tarefas       Tarefa[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  finalizedAt   DateTime?
+}
+
+model Tarefa {
+  id                    Int           @id @default(autoincrement())
+  projeto               Projeto       @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  projetoId             Int
+  data                  String?
+  descricao             String
+  descricaoDetalhada    String?
+  horaInicio            String?
+  horaFinal             String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+}
+
+enum StatusProjeto {
+  EM_ANDAMENTO
+  CONCLUIDO
+  FINALIZADO
+  PAUSADO
+}
