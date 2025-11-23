@@ -3,7 +3,7 @@
 	"routes": [{ "src": "/(.*)", "dest": "/api/index.js" }],
 	"crons": [
 		{
-			"path": "/api/cron.js",
+			"path": "/api/cron",
 			"schedule": "0 5 * * *"
 		}
 	]

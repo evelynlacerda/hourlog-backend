@@ -4,6 +4,8 @@ const cors = require("cors");
 const express = require("express");
 const app = express();
 
+const { runCleanup } = require("./utils/cleanup");
+
 app.use(express.json());
 
 app.use(
@@ -36,5 +38,19 @@ app.get("/", (_req, res) => {
 app.use("/relatorios", relatoriosRoutes);
 app.use("/projetos", projetosRoutes);
 app.use("/tarefas", tarefasRoutes);
+
+app.get("/api/cron", async (req, res) => {
+	try {
+		await runCleanup();
+
+		return res.status(200).json({
+			ok: true,
+			message: "Cleanup executed successfully",
+		});
+	} catch (err) {
+		console.error("[CRON-ENDPOINT] error:", err);
+		return res.status(500).json({ ok: false, error: err.message });
+	}
+});
 
 module.exports = app;
